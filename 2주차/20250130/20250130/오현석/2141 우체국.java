@@ -1,61 +1,41 @@
-import java.util.HashSet;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 
-public class Solution {
-    public static Set<Integer> set;
-    // 소수 확인
-    public static boolean isPrime(int number) {
-        if (number < 2) {
-            return false; 
-        }
-        int limit = (int) Math.sqrt(number);
-        for (int i = 2; i <= limit; i++) {
-            if (number % i == 0) {
-                return false;
-            }
-        }
-        return true;
-    }
-    
-    public int solution(String numbers) {
-        // 문자열을 char 배열로 변환
-        char[] chars = numbers.toCharArray();
-        
-        //중복 제거를 위해 사용
-        set = new HashSet<>();
-        
-        // 재귀 함수를 이용해 순열 생성 (1부터 n 길이까지)
-        permute(new StringBuilder(), new boolean[chars.length], chars);
-        
-        // 소수 개수 세기
-        int count = 0;
-        for (int num : set) {
-            if (isPrime(num)) {
-                count++;
-            }
-        }
-        
-        return count;
-    }
-    
-    // 순열을 생성하는 재귀 함수
-    private void permute(StringBuilder sb, boolean[] v, char[] chars) {
-        // 현재까지 만든 숫자가 있으면 Set에 추가
-        if (sb.length() > 0) {
-            set.add(Integer.valueOf(sb.toString()));
-        }
-        
-        // 아직 사용하지 않은 숫자를 붙여가며 모든 순열 탐색
-        for (int i = 0; i < digits.length; i++) {
-            if (!v[i]) {
-                v[i] = true;
-                sb.append(chars[i]);
-                permute(sb, v, chars);
-                sb.deleteCharAt(sb.length() - 1);
-                v[i] = false;
-            }
-        }
-    }
-    
+public class Main {
+    public static void main(String[] args) throws IOException {
 
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+       
+        int n = Integer.parseInt(br.readLine());
+        
+        // (위치, 인구수)를 담을 리스트
+        List<long[]> info = new ArrayList<>(n);
+        
+        for (int i = 0; i < n; i++) {
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            long X = Long.parseLong(st.nextToken());
+            long A = Long.parseLong(st.nextToken());
+            info.add(new long[] { X, A });
+        }
+        
+        // 위치를 기준으로 오름차순 정렬
+        info.sort(Comparator.comparingLong(a -> a[0]));
+        
+        // prefix 배열에 인구수 누적합을 저장
+        long[] prefix = new long[n];
+        prefix[0] = info.get(0)[1];
+        for (int i = 1; i < n; i++) {
+            prefix[i] = prefix[i - 1] + info.get(i)[1];
+        }
+        
+        //왼쪽 누적합 >= 오른쪽 누적합이 될 경우 출력
+        for (int i = 0; i < n; i++) {
+            long left = prefix[i];
+            long right = prefix[n - 1] - prefix[i];
+            if (left >= right) {
+                System.out.println(info.get(i)[0]);
+                break;
+            }
+        }
+    }
 }
